@@ -1,0 +1,33 @@
+{% load i18n %}
+{% extends "base.html" %}
+
+{% block title %}
+	<img src="/img/proxy.png"> {% trans "Interfaces" %}
+{% endblock %}
+
+{% block display_auth_menu %}none{% endblock %}
+{% block display_pki_menu %}none{% endblock %}
+
+{% block content %}
+	{% if k_output %}<div style="border: 1px dashed black; width: 60%; padding: 1em; margin: 3em"><code style="color: red">{{ k_output }}</code></div>{% endif %}
+	<table class="list">
+	<tr>
+	<th>{% trans "Description" %}</th>
+	<th>{% trans "IP" %}</th>
+	<th style="text-align: center">{% trans "Status" %}</th>
+	<th style="width: 80px" colspan=4></th>
+	</tr>
+{% for object in object_list %}
+	<tr><td>{{ object.desc }}</td><td>{{ object.ip }}:{{ object.port }}</td><td style="text-align: center">{% if object.pid %}<img src="/img/button_ok.png">{% else %}<img src="/img/button_cancel.png">{% endif %}</td><td>{% if object.pid %}<a href="/intf/{{ object.id }}/stop"><img src="/img/stop.png"></a>{% endif %}</td><td>{% if object.pid and object.need_restart %}<a href="/intf/{{ object.id }}/reload/"><img src="/img/reload.png"></a>{% endif %}{% if not object.pid %}<a href="/intf/{{ object.id }}/start/"><img src="/img/reload.png"></a>{% endif %}</td><td><a href="/intf/{{ object.id }}/del/"><img src="/img/editdelete.png"></td><td><a href="/intf/{{ object.id }}"><img src="/img/edit.png"></a></tr>
+{% endfor %}
+	</td>
+	</table>
+{% endblock %}
+
+{% block action %}
+<fieldset id='fieldset'><legend><img src='/img/goto.png'>{% trans "Action" %}</legend>
+<ul>
+		<li><a href="/intf/new/">{% trans "Add" %}</a></li>
+</ul>
+</fieldset>
+{% endblock %}

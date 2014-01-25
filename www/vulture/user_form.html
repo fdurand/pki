@@ -1,0 +1,26 @@
+{% load i18n %}
+{% extends "base.html" %}
+
+{% block title %}
+	<img src="/img/icon-user.png"> {% trans "Add user" %}
+{% endblock %}
+
+{% block display_auth_menu %}none{% endblock %}
+{% block display_pki_menu %}none{% endblock %}
+
+{% block content %}
+<form method="post" action=".">
+<table>
+<tr><td class="input">{% trans "Login" %}</td><td>{{ form.login }}{% if form.login.errors %}<div class="error">{{ form.login.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Password" %}</td><td>{{ form.password }}{% if form.password.errors %}<div class="error">{{ form.password.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Administrator" %}</td><td>{{ form.is_admin }}{% if form.is_admin.errors %}<div class="error">{{ form.is_admin.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "PKI operator" %}</td><td>{{ form.pki_operator }}{% if form.pki_operator.errors %}<div class="error">{{ form.pki_operator.errors|join:", " }}</div>{% endif %}</td></tr>
+</table>
+<div style="width: 75%; text-align: right"><input type="submit" style="width: 100px;"/></div>
+</form>
+{% endblock %}
+
+{% block action %}
+
+{% endblock %}
+

@@ -1,0 +1,35 @@
+{% load i18n %}
+{% extends "base.html" %}
+
+{% block title %}
+	<img src="/img/icon-user.png"> {% trans "Add certificat profile" %}
+{% endblock %}
+
+{% block display_auth_menu %}none{% endblock %}
+
+{% block content %}
+<form method="post" action=".">
+<table>
+<tr><td class="input">{% trans "Name" %}</td><td>{{ form.name }}{% if form.name.errors %}<div class="error">{{ form.name.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "CA certificat" %}</td><td>{{ form.ca_cert }}{% if form.ca_cert.errors %}<div class="error">{{ form.ca_cert.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "CA key" %}</td><td>{{ form.ca_key }}{% if form.ca_key.errors %}<div class="error">{{ form.ca_key.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Validity" %}</td><td>{{ form.validity }}{% if form.validity.errors %}<div class="error">{{ form.validity.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Key type" %}</td><td>{{ form.key_type }}{% if form.key_type.errors %}<div class="error">{{ form.key_type.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Key size" %}</td><td>{{ form.key_size }}{% if form.key_size.errors %}<div class="error">{{ form.key_size.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Digest" %}</td><td>{{ form.digest }}{% if form.digest.errors %}<div class="error">{{ form.digest.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Smtp server" %}</td><td>{{ form.p12_smtp_server }}{% if form.p12_smtp_server.errors %}<div class="error">{{ form.p12_smtp_server.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "CRL file path" %}</td><td>{{ form.crl_path }}{% if form.crl_path.errors %}<div class="error">{{ form.crl_path.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Mail from" %}</td><td>{{ form.p12_mail_from }}{% if form.p12_mail_from.errors %}<div class="error">{{ form.p12_mail_from.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Mail subject" %}</td><td>{{ form.p12_mail_subject }}{% if form.p12_mail_subject.errors %}<div class="error">{{ form.p12_mail_subject.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Mail header" %}</td><td>{{ form.p12_mail_header }}{% if form.p12_mail_header.errors %}<div class="error">{{ form.p12_mail_header.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Mail password" %}</td><td>{{ form.p12_mail_password }}{% if form.p12_mail_password.errors %}<div class="error">{{ form.p12_mail_subject.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Mail footer" %}</td><td>{{ form.p12_mail_footer }}{% if form.p12_mail_footer.errors %}<div class="error">{{ form.p12_mail_footer.errors|join:", " }}</div>{% endif %}</td></tr>
+</table>
+<div style="width: 75%; text-align: right"><input type="submit" style="width: 100px;"/></div>
+</form>
+{% endblock %}
+
+{% block action %}
+
+{% endblock %}
+

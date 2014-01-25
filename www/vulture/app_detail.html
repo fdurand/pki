@@ -1,0 +1,21 @@
+{% load i18n %}
+{% extends "base.html" %}
+
+{% block title %}
+	<img src="/img/winprops.png"> {% trans "Add application" %}
+{% endblock %}
+
+{% block content %}
+<form method="post" action="../new/">
+<table>
+<tr><td width='200'>Internet name</td><td class=input>{{ form.desc }}</td></tr>
+<tr><td>Alias</td><td class=input><input type='text' class='textinput' name='alias' value=""></td></tr>
+</table>
+<input type="submit"/>
+</form>
+{% endblock %}
+
+{% block action %}
+
+{% endblock %}
+

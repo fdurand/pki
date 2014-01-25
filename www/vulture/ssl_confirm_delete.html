@@ -1,0 +1,19 @@
+{% load i18n %}
+{% extends "base.html" %}
+
+{% block title %}<img src="/img/winprops.png"> {% trans "SSL database authentication" %}{% endblock %}
+
+{% block content %}
+<div style="text-align: center; width: 70%">
+<form method="post" action="/ssl/{{ object.name.id }}/del/">
+{% trans "Delete SSL authentication methode" %} {{ object.name }} ?<br>
+<br>
+<input type="button" onclick="document.location='/ssl/'" value="{% trans "no" %}" style="width: 50px;"/> <input type="submit" value="{% trans "yes" %}" style="width: 50px;"/>
+</form>
+</div>
+{% endblock %}
+
+{% block action %}
+
+{% endblock %}
+

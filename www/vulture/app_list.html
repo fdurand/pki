@@ -1,0 +1,34 @@
+{% load i18n %}
+{% extends "base.html" %}
+
+{% block title %}
+	<img src="/img/winprops.png"> {% trans "Applications" %}
+{% endblock %}
+
+{% block display_auth_menu %}none{% endblock %}
+{% block display_pki_menu %}none{% endblock %}
+
+{% block content %}
+	<table class="list">
+	<tr>
+	<th>{% trans "Internet name" %}</th>
+	<th>{% trans "Private URL" %}</th>
+	<th>{% trans "Authentication Methods" %}</th>
+	<th>{% trans "Network interface" %}</th>
+	<th>{% trans "Status" %}</th>
+	<th colspan=3></th>
+	</tr>
+{% for object in object_list %}
+	<tr><td>{{ object.name }}</td><td>{{ object.url }}</td></td></td><td>{% if object.auth %}{{ object.auth }}{% endif %}</td><td>{{ object.intf }}</td><td></td><td><a href="/app/{{ object.id }}/del/"><img src="/img/editdelete.png"></td><td><a href="/app/{{ object.id }}"><img src="/img/edit.png"></a></tr>
+{% endfor %}
+	</td>
+	</table>
+{% endblock %}
+
+{% block action %}
+<fieldset id='fieldset'><legend><img src='/img/goto.png'>{% trans "Action" %}</legend>
+<ul>
+		<li><a href="/app/new/">{% trans "Add" %}</a></li>
+</ul>
+</fieldset>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% load i18n %}
+{% extends "base.html" %}
+
+{% block title %}
+	<img src="/img/winprops.png"> {% if form.desc %} {% trans "Application add" %} {% else %} {% trans "Application edit" %} {% endif %}
+{% endblock %}
+
+{% block display_auth_menu %}none{% endblock %}
+{% block display_pki_menu %}none{% endblock %}
+
+{% block content %}
+<form method="post" action=".">
+<table>
+<tr><td class="input">{% trans "Internet name" %}</td><td>{{ form.name }}{% if form.name.errors %}<div class="error">{{ form.name.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Alias" %} ({% trans "optional" %})</td><td>{{ form.alias }}{% if form.alias.errors %}<div class="error">{{ form.alias.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Interface" %}</td><td>{{ form.intf }}{% if form.intf.errors %}<div class="error">{{ form.intf.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Private URL" %}</td><td>{{ form.url }}{% if form.url.errors %}<div class="error">{{ form.url.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Log" %}</td><td>{{ form.log }}{% if form.log.errors %}<div class="error">{{ form.log.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Authentication" %} ({% trans "optional" %})</td><td>{{ form.auth }}{% if form.auth.errors %}<div class="error">{{ form.auth.errors|join:", " }}</div>{% endif %}</td></tr>
+<tr><td class="input">{% trans "Description" %} ({% trans "optional" %})</td><td>{{ form.desc }}{% if form.desc.errors %}<div class="error">{{ form.desc.errors|join:", " }}</div>{% endif %}</td></tr>
+</table>
+<div style="width: 75%; text-align: right"><input type="submit" style="width: 100px;"/></div>
+</form>
+{% endblock %}
+
+{% block action %}
+
+{% endblock %}
+
