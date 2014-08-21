@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load bootstrap3 %}
+
+{% block title %}
+        <img src="{% static "img/bullet_red.png" %}">
+        {% if not object.id %}
+          {% trans "Add Certificate" %}
+        {% else %}
+          {% trans "Edit Certificate" %}
+        {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if not object.id %}
+    <form action="/pki/cert/new/" method="post">
+  {% else %}
+    <form action="/pki/cert/{{ object.id }}/" method="post">
+  {% endif %}
+{% csrf_token %}
+{% bootstrap_form form %}
+{% buttons %}
+    <button type="submit" class="btn btn-primary">
+        Submit
+   </button>
+{% endbuttons %}
+</form>
+
+{% endblock %}
+
+{% block action %}
+<p>
+<fieldset id='fieldset'><legend><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</legend>
+<ul>
+  <li><a href="/pki/cert/{{ object.id }}/revoke/">{% trans "Revoke Certificate" %}</a></li>
+  <li><a href="/pki/cert/{{ object.id }}/download/">{% trans "Download Certificate" %}</a></li>
+  <li><a href="/pki/cert/{{ object.id }}/send/">{% trans "Send Certificate" %}</a></li>
+
+</ul>
+</fieldset>
+{% endblock %}

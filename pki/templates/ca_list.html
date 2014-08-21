@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+
+{% block title %}
+	<img src="{{ STATIC_URL }}img/unused-security-keys.png"> {% trans "CA List" %}
+{% endblock %}
+
+{% block content %}
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+	  <tr>
+	    <th>{% trans "Nom" %}</th>
+	    <th></th>
+	  </tr>
+        </thead>
+{% for object in object_list %}
+        <tbody>
+	  <tr>
+            <td>{{ object.cn }}</td>
+            <td>
+              <a href="/pki/ca/{{ object.id }}/del/"><img src="{{ STATIC_URL }}img/editdelete.png">
+            </td>
+            <td>
+              <a href="/pki/ca/{{ object.id }}/"><img src="{{ STATIC_URL }}img/edit.png">
+            </td>
+            {% if not object.ca_cert %}
+              <td>
+                <a href="/pki/ca/{{ object.id }}/sign/"><img src="{{ STATIC_URL }}img/icon-security-badge.png">
+              </td>
+            {% endif %}
+          </tr>
+{% endfor %}
+        </tbody>
+      </table>
+    </div>
+{% endblock %}
+
+{% block action %}
+<p>
+<fieldset id='fieldset'><legend><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</legend>
+<ul>
+		<li><a href="/pki/ca/new/">{% trans "Add Certificate Authority" %}</a></li>
+</ul>
+</fieldset>
+{% endblock %}
