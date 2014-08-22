@@ -10,7 +10,8 @@
         <thead>
 	  <tr>
 	    <th>{% trans "Nom" %}</th>
-	    <th></th>
+	    <th>{% trans "Edit" %}</th>
+            <th>{% trans "Delete" %}</th>
 	  </tr>
         </thead>
 {% for object in object_list %}
@@ -18,10 +19,10 @@
 	  <tr>
             <td>{{ object.name }}</td>
             <td>
-              <a href="/pki/profile/{{ object.id }}/del/"><img src="{{ STATIC_URL }}img/editdelete.png">
+              <a href="/pki/profile/{{ object.id }}/"><img src="{{ STATIC_URL }}img/edit.png">
             </td>
             <td>
-              <a href="/pki/profile/{{ object.id }}/"><img src="{{ STATIC_URL }}img/edit.png">
+              <a href="/pki/profile/{{ object.id }}/del/"><img src="{{ STATIC_URL }}img/editdelete.png">
             </td>
           </tr>
 {% endfor %}

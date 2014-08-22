@@ -12,7 +12,9 @@
         <thead>
 	  <tr>
 	    <th>{% trans "Nom" %}</th>
-	    <th></th>
+	    <th>{% trans "Edit" %}</th>
+            <th>{% trans "Delete" %}</th>
+            <th>{% trans "Sign" %}</th>
 	  </tr>
         </thead>
 {% for object in object_list %}
@@ -20,14 +22,17 @@
 	  <tr>
             <td>{{ object.cn }}</td>
             <td>
-              <a href="/pki/ca/{{ object.id }}/del/"><img src="{{ STATIC_URL }}img/editdelete.png">
+              <a href="/pki/ca/{{ object.id }}/"><img src="{{ STATIC_URL }}img/edit.png">
             </td>
             <td>
-              <a href="/pki/ca/{{ object.id }}/"><img src="{{ STATIC_URL }}img/edit.png">
+              <a href="/pki/ca/{{ object.id }}/del/"><img src="{{ STATIC_URL }}img/editdelete.png">
             </td>
             {% if not object.ca_cert %}
               <td>
                 <a href="/pki/ca/{{ object.id }}/sign/"><img src="{{ STATIC_URL }}img/icon-security-badge.png">
+              </td>
+            {% else %}
+              <td>
               </td>
             {% endif %}
           </tr>

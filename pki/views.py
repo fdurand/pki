@@ -52,7 +52,7 @@ def logon(request):
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
-            if user.is_active:
+            if user.is_active and user.is_staff:
                 login(request, user)
                 return HttpResponseRedirect("/pki/")
     return render_to_response('logon.html',context_instance=RequestContext(request))
@@ -217,6 +217,7 @@ class update_user(UpdateView):
     template_name = 'users_form.html'
     model = User
     success_url = '/users/'
+    fields = ['first_name', 'last_name','email','user_permissions','is_active','is_staff']
 
 
 class delete_user(DeleteView):
@@ -498,73 +499,23 @@ class JSONResponse(HttpResponse):
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
 
-@csrf_exempt
-def cert_list(request):
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    """
-    List all code snippets, or create a new snippet.
-    """
-    if request.method == 'GET':
-        certs = Cert.objects.all()
-        serializer = CertSerializer(certs, many=True)
-        return JSONResponse(serializer.data)
-
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = CertSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data, status=201)
-        return JSONResponse(serializer.errors, status=400)
-
-@csrf_exempt
-def cert_detail(request, pk):
-    """
-    Retrieve, update or delete a code snippet.
-    """
+def valid_rest_user(request,cert):
     try:
-        cert = Cert.objects.get(pk=pk)
-    except Cert.DoesNotExist:
-        return HttpResponse(status=404)
-
-    if request.method == 'GET':
-        serializer = CertSerializer(cert)
-        return JSONResponse(serializer.data)
-
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = CertSerializer(cert, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JSONResponse(serializer.data)
-        return JSONResponse(serializer.errors, status=400)
-
-    elif request.method == 'DELETE':
-        cert.delete()
-        return HttpResponse(status=204)
-
-class cert_list(APIView):
-    permission_classes = (permissions.DjangoModelPermissions,)
-    """
-    List all code snippets, or create a new snippet.
-    """
-    queryset = Cert.objects.all()
-    def get(self, request, format=None):
-        certs = Cert.objects.all()
-        serializer = CertSerializer(certs, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = CertSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        restprofils = rest.objects.filter(profile=cert.profile)
+        for restprofil in restprofils:
+            if request.user in restprofil.allowed_users.all():
+                return 1
+        return 0
+    except rest.DoesNotExist:
+        return 0
 
 class cert_detail(APIView):
     """
     Retrieve, update or delete a code snippet.
     """
+    model = Cert
+    permission_classes = (permissions.DjangoModelPermissions,)
+
     def get_object(self, pk):
         try:
             return Cert.objects.get(pk=pk)
@@ -574,23 +525,29 @@ class cert_detail(APIView):
 
     def get(self, request, pk, format=None):
         cert = self.get_object(pk)
-        serializer = CertSerializer(cert)
-        return Response(serializer.data)
+        if valid_rest_user(request,cert):
+            serializer = CertSerializer(cert)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def put(self, request, pk, format=None):
         cert = self.get_object(pk)
-        serializer = CertSerializer(cert, data=request.DATA)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if valid_rest_user(request,cert):
+            serializer = CertSerializer(cert, data=request.DATA)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def delete(self, request, pk, format=None):
         cert = self.get_object(pk)
-        cert.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if valid_rest_user(request,cert):
+            cert.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class cert_list_id(APIView):
+class cert_list(APIView):
     permission_classes = (permissions.DjangoModelPermissions,)
     """
     List all code snippets, or create a new snippet.

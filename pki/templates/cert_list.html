@@ -12,7 +12,11 @@
         <thead>
 	  <tr>
 	    <th>{% trans "Nom" %}</th>
-	    <th></th>
+	    <th>{% trans "Edit" %}</th>
+	    <th>{% trans "Delete" %}</th>
+            <th>{% trans "Sign" %}</th>
+	    <th>{% trans "Revoked" %}</th>
+	    <th>{% trans "Profil" %}</th>
 	  </tr>
         </thead>
 {% for object in object_list %}
@@ -20,21 +24,30 @@
 	  <tr>
             <td>{{ object.cn }}</td>
             <td>
-              <a href="/pki/cert/{{ object.id }}/del/"><img src="{{ STATIC_URL }}img/editdelete.png" title="Delete certificate">
+              <a href="/pki/cert/{{ object.id }}/"><img src="{{ STATIC_URL }}img/edit.png" title="Edit certificate">
             </td>
             <td>
-              <a href="/pki/cert/{{ object.id }}/"><img src="{{ STATIC_URL }}img/edit.png" title="Edit certificate">
+              <a href="/pki/cert/{{ object.id }}/del/"><img src="{{ STATIC_URL }}img/editdelete.png" title="Delete certificate">
             </td>
             {% if not object.pkey %}
               <td>
                 <a href="/pki/cert/{{ object.id }}/sign/"><img src="{{ STATIC_URL }}img/icon-security-badge.png" title="Sign certificate">
+              </td>
+            {% else %}
+              <td>
               </td>
             {% endif %}
             {% if object.CRLReason %}
               <td>
                 <img src="{{ STATIC_URL }}img/button_cancel.png" title="Certificate revoked">
               </td>
+            {% else %}
+              <td>
+              </td>
             {% endif %}
+              <td>
+                <a href="/pki/profile/{{ object.profile.id }}/">{{ object.profile.name }}
+              </td>
           </tr>
 {% endfor %}
         </tbody>
