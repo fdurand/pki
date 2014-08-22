@@ -1,6 +1,7 @@
+from django.contrib.auth.decorators import login_required
+from django.conf.urls import patterns, include, url
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import RedirectView
-from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
 admin.autodiscover()
@@ -13,8 +14,8 @@ urlpatterns = patterns('',
     url(r'^pki', include('pki.urls')),
     url(r'^logon/$',  'pki.views.logon'),
     url(r'^logout/$', 'pki.views.disconnect'),
-    url(r'^users/(?P<pk>\d+)/del/$',           views.delete_user.as_view(), name='user_delete'),
-    url(r'^users/(?P<pk>\d+)/$',               views.update_user.as_view(), name='user_update'),
-    url(r'^users/new/$',                       views.register, name='user_add'),
-    url(r'^users/$',                           views.list_user.as_view(), name='user_list'),
+    url(r'^users/(?P<pk>\d+)/del/$',           login_required(views.delete_user.as_view(),login_url='/logon/'), name='user_delete'),
+    url(r'^users/(?P<pk>\d+)/$',               login_required(views.update_user.as_view(),login_url='/logon/'), name='user_update'),
+    url(r'^users/new/$',                       login_required(views.register,login_url='/logon/'), name='user_add'),
+    url(r'^users/$',                           login_required(views.list_user.as_view(),login_url='/logon/'), name='user_list'),
 )

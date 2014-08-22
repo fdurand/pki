@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseRedirect, HttpResponse, HttpRequest
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.auth import authenticate, login, logout
-from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render_to_response
@@ -33,6 +33,7 @@ from rest_framework import status
 from pki.serializers import *
 from pki.models import *
 from pki.forms import *
+from pki.utils import *
 
 import datetime
 import requests
@@ -61,6 +62,7 @@ def logon(request):
 def disconnect(request):  
     logout(request)
     return HttpResponseRedirect("/logon/")
+
 
 class AjaxableResponseMixin(object):
     """
@@ -92,6 +94,7 @@ class AjaxableResponseMixin(object):
         else:
             return response
 
+
 class list_cert_page(generic.ListView):
     template_name = 'certprofile_list.html'
     context_object_name = 'latest_pki_cert'
@@ -100,18 +103,20 @@ class list_cert_page(generic.ListView):
         """Return the cert profiles."""
         return CertProfile.objects.all()
 
+
 class create_cert_profile(AjaxableResponseMixin, CreateView):
     template_name = 'certprofile_form.html'
     model = CertProfile
 
-    @method_decorator(permission_required('pki.add_certprofile'))
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super(create_cert_profile, self).form_valid(form)
 
+
 class update_cert_profile(UpdateView):
     template_name = 'certprofile_form.html'
     model = CertProfile
+
 
 class delete_cert_profile(DeleteView):
     template_name = 'certprofile_confirm_delete.html'
@@ -127,15 +132,16 @@ class list_cert_profile(generic.ListView):
         """Return the profile list."""
         return CertProfile.objects.all()
 
+
 class create_cert(AjaxableResponseMixin, CreateView):
     template_name = 'cert_form.html'
     model = Cert
     fields = ['cn','mail','st','organisation','country','profile']
-    #fields = ['cn']
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super(create_cert, self).form_valid(form)
+
 
 class update_cert(UpdateView):
     template_name = 'cert_form.html'
@@ -147,6 +153,7 @@ class delete_cert(DeleteView):
     template_name = 'cert_confirm_delete.html'
     model = Cert
     success_url = '/pki/cert/'
+
 
 class list_cert(generic.ListView):
     template_name = 'cert_list.html'
@@ -194,6 +201,7 @@ def sign_ca(request,pk):
         p.save()
     return HttpResponseRedirect('/pki/ca/'+pk+'/')
 
+
 def register(request):
     if request.method == 'POST':
         form = UserCreateForm(request.POST)
@@ -203,14 +211,6 @@ def register(request):
     else:
         form = UserCreateForm()
     return render(request, 'users_form.html', { 'form': form })
-
-class create_user(AjaxableResponseMixin, CreateView):
-    template_name = 'users_form.html'
-    model = User
-
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        return super(create_user, self).form_valid(form)
 
 
 class update_user(UpdateView):
@@ -234,12 +234,14 @@ class list_user(generic.ListView):
         """Return the ca list."""
         return User.objects.all()
 
+
 def sign_cert(request,pk):
     p = Cert.objects.get(id=pk)
     if not p.pkey:
         p.sign()
         p.save()
     return HttpResponseRedirect('/pki/cert/'+pk+'/')
+
 
 class revoke_cert(UpdateView):
     template_name = 'cert_revoke.html'
@@ -277,6 +279,7 @@ class revoke_cert(UpdateView):
         open("%s" % certificat.profile.crl_path, "w").write(crl.export(certificate, private_key, type=FILETYPE_PEM))
         return super(revoke_cert, self).form_valid(form)
 
+
 def download_cert(request,pk):
     cert = Cert.objects.get(id=pk)
     response = HttpResponse(mimetype='application/octet-stream')
@@ -287,6 +290,7 @@ def download_cert(request,pk):
     response.write(cert.pkcs12(password))
     return response
 
+
 def send_cert(request,pk):
     cert = Cert.objects.get(id=pk)
     password = generate_password()
@@ -294,10 +298,12 @@ def send_cert(request,pk):
         cert.send_cert(password)
     return HttpResponseRedirect('/pki/cert/'+pk+'/')
 
+
 def generate_password():
     characters = string.ascii_letters + string.digits
     password =  "".join(random.choice(characters) for x in range(random.randint(8, 16)))
     return password
+
 
 @csrf_exempt
 def ocsp_server(request):
@@ -436,33 +442,6 @@ def ocsp_server(request):
 
     return response
 
-def bytesToString(bytes):
-    return bytes.tostring()
-
-def stringToBytes(s):
-    bytes = createByteArrayZeros(0)
-    bytes.fromstring(s)
-    return bytes
-
-def createByteArrayZeros(howMany):
-    return array.array('B', [0] * howMany)
-
-def BytesToBin(bytes):
-    """Convert byte string to bit string."""
-    return "".join([_PadByte(IntToBin(ord(byte))) for byte in bytes])
-
-def _PadByte(bits):
-    """Pad a string of bits with zeros to make its length a multiple of 8."""
-    r = len(bits) % 8
-    return ((8-r) % 8)*'0' + bits
-
-def IntToBin(n):
-    if n == 0 or n == 1:
-        return str(n)
-    elif n % 2 == 0:
-        return IntToBin(n/2) + "0"
-    else:
-        return IntToBin(n/2) + "1"
 
 class certWizard(SessionWizardView):
     form_list = [CertForm1, CertForm2]
@@ -490,6 +469,7 @@ class certWizard(SessionWizardView):
         response.write(certif.pkcs12(data['password']))
         return response
 
+
 class JSONResponse(HttpResponse):
     """
     An HttpResponse that renders its content into JSON.
@@ -498,6 +478,7 @@ class JSONResponse(HttpResponse):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
+
 
 def valid_rest_user(request,cert):
     try:
@@ -508,6 +489,7 @@ def valid_rest_user(request,cert):
         return 0
     except rest.DoesNotExist:
         return 0
+
 
 class cert_detail(APIView):
     """
@@ -547,6 +529,7 @@ class cert_detail(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
+
 class cert_list(APIView):
     permission_classes = (permissions.DjangoModelPermissions,)
     """
@@ -574,6 +557,7 @@ class cert_list(APIView):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
+
 class create_rest(AjaxableResponseMixin, CreateView):
     template_name = 'rest_form.html'
     model = rest
@@ -582,9 +566,11 @@ class create_rest(AjaxableResponseMixin, CreateView):
         form.instance.created_by = self.request.user
         return super(create_rest, self).form_valid(form)
 
+
 class update_rest(UpdateView):
     template_name = 'rest_form.html'
     model = rest
+
 
 class delete_rest(DeleteView):
     template_name = 'rest_confirm_delete.html'
