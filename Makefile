@@ -1,8 +1,8 @@
 NAME	= inverse-pki
 VERSION	= 1.00
 PREFIX	= /usr/local/pf/pki
-UID	= -o pf
-GID	= -g pf
+UID	= -o nobody
+GID	= -g nogroup
 DIRS	= bootstrap3 inverse pki rest_framework conf
 INSTALL	= /usr/bin/install -c -D -m0644
 TAR	= $(NAME)-$(VERSION).tar
