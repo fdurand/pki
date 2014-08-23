@@ -24,7 +24,7 @@ case "$1" in
 	;;
   stop)
 	echo -n "Stopping $DESC: ";
-	for i in `ls $Inverse_HOME/$NAME/conf/*.pid 2> /dev/null`; do 
+	for i in `ls $Inverse_HOME/$NAME/*.pid 2> /dev/null`; do 
 		kill `cat $i` 
 	done;
 	echo "." 
