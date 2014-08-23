@@ -1,0 +1,14 @@
+Source: inverse-pki
+Section: main/net
+Priority: optional
+Maintainer: Fabrice Durand <fdurand@inverse.ca>
+Build-Depends: debhelper (>= 4.0.0), dpkg-dev,make, patch, perl, autoconf, automake, dh-make, debhelper, devscripts, fakeroot
+Standards-Version: 3.6.1
+
+Package: inverse-pki
+Architecture: any
+Depends: openssl, apache2, libapache2-mod-wsgi, sqlite3, sudo, python-django, python, python-openssl, python-ldap, python-pyasn1, python-pyasn1-modules, python-requests
+Description: Inverse-pki is an opensource pki based on python
+ Inverse-pki is an light opensource pki based on django framework.
+ Through a web portail it use to generate clients certificates.
+ The certificate could be deliver by email in pk12 based files.

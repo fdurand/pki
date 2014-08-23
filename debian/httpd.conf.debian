@@ -1,0 +1,50 @@
+Listen *:9191
+LoadModule 	ssl_module 		/usr/lib/apache2/modules/mod_ssl.so
+LoadModule	python_module		/usr/lib/apache2/modules/mod_python.so
+
+user pf
+group pf
+
+<IfModule mod_mime.c>
+TypesConfig /usr/local/pf/pki/conf/mime.types
+</IfModule>
+
+PidFile /usr/local/pf/pki/inverse-pki.pid
+
+ErrorLog /var/log/apache2/error.log
+<Virtualhost *:9191>
+
+   DocumentRoot /usr/local/pf/pki
+
+   ServerName 127.0.0.1
+
+   ErrorLog /var/log/apache2/inverse-pki.err
+
+   SSLEngine                    On
+   SSLCACertificateFile         /usr/local/pf/conf/ssl/server.crt
+   SSLCertificateKeyFile        /usr/local/pf/conf/ssl/server.key
+   SSLCertificateFile           /usr/local/pf/conf/ssl/server.crt
+
+   SSLVerifyClient              none
+   SSLVerifyDepth               2
+
+   SSLOptions +StdEnvVars
+
+   <Directory "/usr/local/pf/pki/">
+     AllowOverride All
+     Order deny,allow
+     Allow from all
+   </Directory>
+
+
+   ServerAdmin admin@localhost
+   ErrorLog "logs/marina.com-error_log"
+   CustomLog "logs/marina.com-access_log" common
+   # mod_wsgi configuration is here
+   # we are running as user/group 'deamon', if you don't have those you need to change or create.
+   WSGIDaemonProcess inverse-pki user=pf group=pf processes=2 threads=25
+   WSGIProcessGroup pf
+   # this is our WSGI file.
+   WSGIScriptAlias / /usr/local/pf/pki/inverse-pki.wsgi
+
+</Virtualhost>

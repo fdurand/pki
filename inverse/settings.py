@@ -87,3 +87,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     "/opt/inverse/pki/static",
 )
+
+VERSION = '1.0'

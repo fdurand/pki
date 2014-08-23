@@ -1,0 +1,20 @@
+#! /bin/sh
+# preinst script for inverse-pki
+#
+# see: dh_installdeb(1)
+
+set -e
+if grep -E "^pf:" /etc/passwd > /dev/null ; then
+	echo pf exist
+else
+	useradd pf
+	groupadd pf
+fi
+if grep -E "^pf:" /etc/group > /dev/null ; then
+	echo pf exist
+else
+	groupadd pf
+fi
+exit 0
+
+
