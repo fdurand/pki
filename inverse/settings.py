@@ -85,7 +85,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-    "/opt/inverse/pki/static",
+    "/usr/local/pf/pki/pki/static",
 )
 
 VERSION = '1.0'
