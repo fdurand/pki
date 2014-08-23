@@ -15,6 +15,9 @@ NameVirtualHost 127.0.0.1:9191
   <IfModule !mod_mime.c>
     LoadModule      mime_module             /usr/lib/apache2/modules/mod_mime.so
   </IfModule>
+  <IfModule !mod_alias.c>
+    LoadModule      alias_module            /usr/lib/apache2/modules/mod_alias.so
+  </IfModule>
 
 user pf
 group pf
@@ -24,11 +27,6 @@ TypesConfig /usr/local/pf/pki/conf/mime.types
 </IfModule>
 
 PidFile /usr/local/pf/pki/inverse-pki.pid
-
-LogFormat "%{User-agent}i" agent
-LogFormat "%h %l %u %t \"%r\" %>s %b" common
-LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
-LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %h" loadbalanced_combined
 
 ErrorLog /var/log/apache2/error.log
 <Virtualhost 127.0.0.1:9191>
@@ -49,6 +47,13 @@ ErrorLog /var/log/apache2/error.log
 
    SSLOptions +StdEnvVars
 
+   Alias /static/ /usr/local/pf/pki/pki/static/
+
+   <Directory /usr/local/pf/pki/pki/static>
+     Order deny,allow
+     Allow from all
+   </Directory>
+
    <Directory "/usr/local/pf/pki/">
      AllowOverride All
      Order deny,allow
@@ -59,12 +64,9 @@ ErrorLog /var/log/apache2/error.log
    ServerAdmin admin@localhost
    ErrorLog "/usr/local/pf/pki/logs/inverse_pki.error.log"
    CustomLog "/usr/local/pf/pki/logs/inverse_pki.access.log" common
-
    # mod_wsgi configuration is here
    # we are running as user/group 'deamon', if you don't have those you need to change or create.
    WSGIDaemonProcess inverse-pki user=pf group=pf processes=2 threads=25
-   # WSGIProcessGroup pf
-   # this is our WSGI file.
    WSGIScriptAlias / /usr/local/pf/pki/conf/inverse-pki.wsgi
 
 </Virtualhost>
