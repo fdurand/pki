@@ -36,7 +36,6 @@ from pki.forms import *
 from pki.utils import *
 
 import datetime
-import requests
 import hashlib
 import string
 import random

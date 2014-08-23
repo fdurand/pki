@@ -4,12 +4,12 @@
 # see: dh_installdeb(1)
 
 set -e
-if [ -f /usr/local/pf/conf/ssl/server.crt ] ; then
+if [ -f /usr/local/pf/pki/conf/server.crt ] ; then
 	echo "certificate exist do nothing"
 else
 	openssl req -x509 -new -nodes -days 365 -batch\
-	-out /usr/local/pf/conf/ssl/server.crt\
-	-keyout /usr/local/pf/conf/ssl/server.key\
+	-out /usr/local/pf/pki/conf/server.crt\
+	-keyout /usr/local/pf/pki/conf/server.key\
 	-nodes -config /usr/local/pf/pki/conf/openssl.cnf
 fi
 if [ -f /usr/local/pf/pki/db.sqlite3 ] ; then
@@ -18,8 +18,8 @@ else
 cd /usr/local/pf/pki && ./manage.py syncdb
 fi
 chown -R pf.pf /usr/local/pf/pki
-chown pf.pf /usr/local/pki/conf/httpd.conf
-chmod 600 /usr/local/pki/conf/httpd.conf
+chown pf.pf /usr/local/pf/pki/conf/httpd.conf
+chmod 600 /usr/local/pf/pki/conf/httpd.conf
 update-rc.d -f inverse-pki start 90 2 3 4 5 . stop 90 0 1 6 .
 invoke-rc.d inverse-pki start
 exit 0

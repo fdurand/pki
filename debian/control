@@ -7,7 +7,7 @@ Standards-Version: 3.6.1
 
 Package: inverse-pki
 Architecture: any
-Depends: openssl, apache2, libapache2-mod-wsgi, sqlite3, sudo, python-django, python, python-openssl, python-ldap, python-pyasn1, python-pyasn1-modules, python-requests
+Depends: openssl, apache2, libapache2-mod-wsgi, sqlite3, sudo, python, python-openssl, python-ldap, python-pyasn1 (>= 0.1.7), python-pyasn1-modules (>= 0.0.3)
 Description: Inverse-pki is an opensource pki based on python
  Inverse-pki is an light opensource pki based on django framework.
  Through a web portail it use to generate clients certificates.

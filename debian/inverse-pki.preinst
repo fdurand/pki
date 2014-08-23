@@ -8,7 +8,6 @@ if grep -E "^pf:" /etc/passwd > /dev/null ; then
 	echo pf exist
 else
 	useradd pf
-	groupadd pf
 fi
 if grep -E "^pf:" /etc/group > /dev/null ; then
 	echo pf exist

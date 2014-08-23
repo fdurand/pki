@@ -1,6 +1,20 @@
-Listen *:9191
-LoadModule 	ssl_module 		/usr/lib/apache2/modules/mod_ssl.so
-LoadModule	python_module		/usr/lib/apache2/modules/mod_python.so
+Listen 127.0.0.1:9191
+NameVirtualHost 127.0.0.1:9191
+  <IfModule !mod_ssl.c>
+    LoadModule      ssl_module              /usr/lib/apache2/modules/mod_ssl.so
+  </IfModule>
+  <IfModule !mod_wsgi.c>
+    LoadModule      wsgi_module             /usr/lib/apache2/modules/mod_wsgi.so
+  </IfModule>
+  <IfModule !mod_authz_host.c>
+    LoadModule      authz_host_module       /usr/lib/apache2/modules/mod_authz_host.so
+  </IfModule>
+  <IfModule !mod_log_config.c>
+    LoadModule      log_config_module       /usr/lib/apache2/modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_mime.c>
+    LoadModule      mime_module             /usr/lib/apache2/modules/mod_mime.so
+  </IfModule>
 
 user pf
 group pf
@@ -11,8 +25,13 @@ TypesConfig /usr/local/pf/pki/conf/mime.types
 
 PidFile /usr/local/pf/pki/inverse-pki.pid
 
+LogFormat "%{User-agent}i" agent
+LogFormat "%h %l %u %t \"%r\" %>s %b" common
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %h" loadbalanced_combined
+
 ErrorLog /var/log/apache2/error.log
-<Virtualhost *:9191>
+<Virtualhost 127.0.0.1:9191>
 
    DocumentRoot /usr/local/pf/pki
 
@@ -21,9 +40,9 @@ ErrorLog /var/log/apache2/error.log
    ErrorLog /var/log/apache2/inverse-pki.err
 
    SSLEngine                    On
-   SSLCACertificateFile         /usr/local/pf/conf/ssl/server.crt
-   SSLCertificateKeyFile        /usr/local/pf/conf/ssl/server.key
-   SSLCertificateFile           /usr/local/pf/conf/ssl/server.crt
+   SSLCACertificateFile         /usr/local/pf/pki/conf/server.crt
+   SSLCertificateKeyFile        /usr/local/pf/pki/conf/server.key
+   SSLCertificateFile           /usr/local/pf/pki/conf/server.crt
 
    SSLVerifyClient              none
    SSLVerifyDepth               2
@@ -38,13 +57,15 @@ ErrorLog /var/log/apache2/error.log
 
 
    ServerAdmin admin@localhost
-   ErrorLog "logs/marina.com-error_log"
-   CustomLog "logs/marina.com-access_log" common
+   ErrorLog "/usr/local/pf/pki/logs/inverse_pki.error.log"
+   CustomLog "/usr/local/pf/pki/logs/inverse_pki.access.log" common
+
    # mod_wsgi configuration is here
    # we are running as user/group 'deamon', if you don't have those you need to change or create.
    WSGIDaemonProcess inverse-pki user=pf group=pf processes=2 threads=25
-   WSGIProcessGroup pf
+   # WSGIProcessGroup pf
    # this is our WSGI file.
-   WSGIScriptAlias / /usr/local/pf/pki/inverse-pki.wsgi
+   WSGIScriptAlias / /usr/local/pf/pki/conf/inverse-pki.wsgi
 
 </Virtualhost>
+

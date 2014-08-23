@@ -20,7 +20,6 @@ install:
 		done \
 	done
 	install -m0744 manage.py $(DESTDIR)$(PREFIX)/manage.py; \
-	install -m0744 inverse-pki.wsgi $(DESTDIR)$(PREFIX)/inverse-pki.wsgi; \
 	install -m0600 debian/httpd.conf.debian $(DESTDIR)$(PREFIX)/conf/httpd.conf
 	
 clean:
