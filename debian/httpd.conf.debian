@@ -74,6 +74,7 @@
         SSLOptions +StdEnvVars
 
         Alias /static/ /usr/local/pf/pki/pki/static/
+        Alias /favicon.ico /usr/local/pf/pki/pki/static/img/key.ico
 
         <Directory /usr/local/pf/pki/pki/static>
             <IfVersion < 2.4>
