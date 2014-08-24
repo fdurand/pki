@@ -94,21 +94,21 @@ class CA(models.Model):
         return crypto.dump_pkcs12(p12,passphrase, "")
 
 class SCHEMA(models.Model):
+    SCHEME_TYPE = (
+        ('user','User Schema'),
+        ('group','Group Schema'),
+        )
     name = models.CharField(max_length=20,unique=1)
-    type = models.CharField(max_length=20)
+    type = models.CharField(max_length=10,choices=SCHEME_TYPE, default="user")
+    attribut = models.ManyToManyField(Attrib)
+
     def __unicode__(self):
         return self.name
-    def get_absolute_url(self):
-        return "/schema/"
-    def post_delete_redirect(self):
-        return "/schema/"
 
 class Attrib(models.Model):
     attribut = models.CharField(max_length=20)
     value = models.CharField(max_length=20)
     description = models.CharField(max_length=40)
-    type = models.CharField(max_length=20)
-    ref_appli = models.ForeignKey('SCHEMA',null=True)
 
     def __unicode__(self):
         return self.attribut
