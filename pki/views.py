@@ -599,4 +599,31 @@ class list_rest(generic.ListView):
         """Return the rest list."""
         return rest.objects.all()
 
+class create_ldap(AjaxableResponseMixin, CreateView):
+    template_name = 'ldap_form.html'
+    model = LDAP
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super(create_ldap, self).form_valid(form)
+
+
+class update_ldap(UpdateView):
+    template_name = 'ldap_form.html'
+    model = LDAP
+
+
+class delete_ldap(DeleteView):
+    template_name = 'ldap_confirm_delete.html'
+    model = LDAP
+    success_url = '/pki/ldap/'
+
+
+class list_ldap(generic.ListView):
+    template_name = 'ldap_list.html'
+    context_object_name = 'ldap_list'
+
+    def get_queryset(self):
+        """Return the LDAP list."""
+        return LDAP.objects.all()
 

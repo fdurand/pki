@@ -31,4 +31,8 @@ urlpatterns = patterns('',
     url(r'/rest/(?P<pk>\d+)/$',               login_required(views.update_rest.as_view(),login_url='/logon/'), name='rest_update'),
     url(r'/rest/new/$',                       login_required(views.create_rest.as_view(),login_url='/logon/'), name='rest_add'),
     url(r'/rest/$',                           login_required(views.list_rest.as_view(),login_url='/logon/'), name='rest_list'),
+    url(r'/ldap/(?P<pk>\d+)/del/$',           login_required(views.delete_ldap.as_view(),login_url='/logon/'), name='ldap_delete'),
+    url(r'/ldap/(?P<pk>\d+)/$',               login_required(views.update_ldap.as_view(),login_url='/logon/'), name='ldap_update'),
+    url(r'/ldap/new/$',                       login_required(views.create_ldap.as_view(),login_url='/logon/'), name='ldap_add'),
+    url(r'/ldap/$',                           login_required(views.list_ldap.as_view(),login_url='/logon/'), name='ldap_list'),
 )

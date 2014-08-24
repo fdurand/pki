@@ -18,6 +18,7 @@ import datetime
 import smtplib
 import hashlib
 import string
+import ldap
 import os
 
 
@@ -35,12 +36,12 @@ class CA(models.Model):
     key_usage = models.CharField(max_length=50,blank=1)
     extended_key_usage = models.CharField(max_length=50,blank=1)
     days = models.IntegerField(max_length=4)
-    ca_key = models.TextField(blank=1,null=1)
-    ca_cert = models.TextField(blank=1,null=1)
-    issuerKeyHashmd5 = models.TextField(blank=1,null=1,max_length=33)
-    issuerKeyHashsha1 = models.TextField(blank=1,null=1,max_length=41)
-    issuerKeyHashsha256 = models.TextField(blank=1,null=1,max_length=65)
-    issuerKeyHashsha512 = models.TextField(blank=1,null=1,max_length=129)
+    ca_key = models.TextField(blank=1,null=1,editable=False)
+    ca_cert = models.TextField(blank=1,null=1,editable=False)
+    issuerKeyHashmd5 = models.TextField(blank=1,null=1,max_length=33,editable=False)
+    issuerKeyHashsha1 = models.TextField(blank=1,null=1,max_length=41,editable=False)
+    issuerKeyHashsha256 = models.TextField(blank=1,null=1,max_length=65,editable=False)
+    issuerKeyHashsha512 = models.TextField(blank=1,null=1,max_length=129,editable=False)
     def sign(self):
         k = crypto.PKey()
         k.generate_key(self.key_type, self.key_size)
@@ -92,9 +93,150 @@ class CA(models.Model):
         p12.set_certificate(cert)
         return crypto.dump_pkcs12(p12,passphrase, "")
 
+class SCHEMA(models.Model):
+    name = models.CharField(max_length=20,unique=1)
+    type = models.CharField(max_length=20)
+    def __unicode__(self):
+        return self.name
+    def get_absolute_url(self):
+        return "/schema/"
+    def post_delete_redirect(self):
+        return "/schema/"
+
+class Attrib(models.Model):
+    attribut = models.CharField(max_length=20)
+    value = models.CharField(max_length=20)
+    description = models.CharField(max_length=40)
+    type = models.CharField(max_length=20)
+    ref_appli = models.ForeignKey('SCHEMA',null=True)
+
+    def __unicode__(self):
+        return self.attribut
+
+
+class LDAP(models.Model):
+    LDAP_ENC_SCHEMES = (
+        ('none','none (usual port: 389)'),
+        ('ldaps','ldaps (usual port: 636)'),
+        ('start-tls','start-tls (usual port: 389)'),
+        )
+    LDAP_SCOPE = (
+        (ldap.SCOPE_SUBTREE,'subtree (all levels under suffix)'),
+        (ldap.SCOPE_ONELEVEL,'one (one level under suffix)'),
+        (ldap.SCOPE_BASE,'base (the suffix entry only)'),
+        )
+    LDAP_VERSIONS = (
+        ('2','LDAP v2'),
+        ('3','LDAP v3'),
+        )
+    name = models.CharField(max_length=20)
+    host = models.CharField(max_length=20)
+    port = models.IntegerField()
+    protocol = models.IntegerField(choices=LDAP_VERSIONS)
+    scheme = models.CharField(max_length=10,choices=LDAP_ENC_SCHEMES, default="none")
+    cacert_path = models.CharField(max_length=20, blank=1, null=1)
+    schema = models.ForeignKey('SCHEMA',null=True)
+    base_dn = models.CharField(max_length=50)
+    dn = models.CharField(max_length=50)
+    password = models.CharField(max_length=20)
+    user_ou = models.CharField(max_length=100)
+    user_attr = models.CharField(max_length=20)
+    user_scope = models.IntegerField(choices=LDAP_SCOPE)
+    user_filter = models.CharField(max_length=100)
+    group_ou = models.CharField(max_length=100)
+    group_attr = models.CharField(max_length=50)
+    group_scope = models.IntegerField(choices=LDAP_SCOPE)
+    group_filter = models.CharField(max_length=100)
+    group_member = models.CharField(max_length=20)
+    are_members_dn = models.BooleanField()
+
+    def search(self, base_dn, scope, filter, attr):
+        ko = []
+        try:
+            l = ldap.open(self.host)
+            l.simple_bind_s(self.dn, self.password)
+            result_id = l.search(base_dn, scope, filter.encode('utf-8'), attr)
+            while 1:
+                result_type, result_data = l.result(result_id, 0)
+                if not result_data:
+                    break
+                if result_type == ldap.RES_SEARCH_ENTRY:
+                    ko.append(result_data)
+        except ldap.LDAPError, error_message:
+            print error_message
+        return sorted(ko, key=operator.itemgetter(0))
+
+    def group_ok(self, dn):
+        group_filter = "(&"+self.group_filter+"(member="+dn+"))"
+        ret = self.search(self.base_dn, self.group_scope, group_filter, [ str(self.group_attr) ])
+        return ret
+
+    def all_groups(self):
+         ret = self.search(self.base_dn, self.group_scope, self.group_filter, [ str(self.group_attr) ])
+         return ret
+
+    def group_ko(self, group_ok):
+        group_filter = "(&"+self.group_filter
+        for group in group_ok:
+            name = group[0][1][self.group_attr][0]
+            group_filter += "(!("+self.group_attr+"="+name.decode('utf-8')+"))"
+        group_filter += ")"
+        ret = self.search(self.base_dn, self.group_scope, group_filter, [ str(self.group_attr) ])
+        return ret
+
+    def modify(self, dn, attrs):
+        try:
+            l = ldap.open(self.host)
+            l.simple_bind_s(self.dn, self.password)
+            l.modify_s(dn.encode('latin-1'), attrs)
+        except ldap.LDAPError, error_message:
+            raise error_message
+
+    def add(self, dn, attrs):
+        try:
+            l = ldap.open(self.host)
+            l.simple_bind_s(self.dn, self.password)
+            l.add_s(dn.encode('latin-1'), attrs)
+            print "ADD %s" % dn
+            print attrs
+        except ldap.LDAPError, error_message:
+            print error_message
+
+    def member(self, mod_type, group_cn, user_dn):
+        try:
+            l = ldap.open(self.host)
+            l.simple_bind_s(self.dn, self.password)
+            dn = self.group_attr + "=" + group_cn + ",ou=" + self.group_ou + "," + self.base_dn
+            l.modify_s(dn.encode('utf-8'), [(mod_type, "member", user_dn.encode('utf-8'))])
+        except ldap.LDAPError, error_message:
+            print error_message
+
+    def delete_user(self, uid):
+        try:
+            l = ldap.open(self.host)
+            l.simple_bind_s(self.dn, self.password)
+            l.delete_s("uid="+uid+",ou="+self.user_ou+","+self.base_dn)
+        except ldap.LDAPError, error_message:
+            print error_message
+
+    def delete_group(self, cn):
+        try:
+            l = ldap.open(self.host)
+            l.simple_bind_s(self.dn, self.password)
+            l.delete_s("cn="+cn+",ou="+self.group_ou+","+self.base_dn)
+        except ldap.LDAPError, error_message:
+            print error_message
+
+    def __unicode__(self):
+        return self.host
+
+    def get_absolute_url(self):
+        return reverse('ldap_update', kwargs={'pk': self.pk})
+
 class CertProfile(models.Model):
     name = models.CharField(max_length=20,unique=1)
     ca = models.ForeignKey(CA)
+    ldap = models.ForeignKey(LDAP,blank=1,null=1)
     crl_path = models.CharField(max_length=150,unique=1)
     validity = models.IntegerField()
     key_type = models.IntegerField(choices=((crypto.TYPE_RSA, 'RSA'), (crypto.TYPE_DSA, 'DSA')))
@@ -138,10 +280,10 @@ class Cert(models.Model):
     date = models.DateTimeField(auto_now_add=1,blank=1,null=1)
     revoked = models.DateTimeField(blank=1,null=1)
     CRLReason = models.CharField(max_length=20,choices=REVOKE_REASON, blank=1,null=1)
-    userIssuerHashmd5 = models.TextField(blank=1,null=1,max_length=33)
-    userIssuerHashsha1 = models.TextField(blank=1,null=1,max_length=41)
-    userIssuerHashsha256 = models.TextField(blank=1,null=1,max_length=65)
-    userIssuerHashsha512 = models.TextField(blank=1,null=1,max_length=129)
+    userIssuerHashmd5 = models.TextField(blank=1,null=1,max_length=33,editable=False)
+    userIssuerHashsha1 = models.TextField(blank=1,null=1,max_length=41,editable=False)
+    userIssuerHashsha256 = models.TextField(blank=1,null=1,max_length=65,editable=False)
+    userIssuerHashsha512 = models.TextField(blank=1,null=1,max_length=129,editable=False)
     def valid_until_str(self):
         return self.valid_until.strftime("%d/%m/%Y")
     def sign(self):
