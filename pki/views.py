@@ -54,7 +54,11 @@ def logon(request):
         if user is not None:
             if user.is_active and user.is_staff:
                 login(request, user)
-                return HttpResponseRedirect("/pki/")
+                try:
+                    ca = CA.objects.all()
+                    return HttpResponseRedirect("/pki/")
+                except CA.DoesNotExist:
+                    return HttpResponseRedirect("/pki/init_wizard/")
     return render_to_response('logon.html',context_instance=RequestContext(request))
 
 
@@ -455,7 +459,6 @@ class certWizard(SessionWizardView):
         serializer = CertSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-        # Requests object to send to the REST API
         #new_data = JSONRenderer().render(serializer.data)
         #headers = {'content-type': 'application/json'}
         #r = requests.post(restdefault.url, data=new_data, headers=headers)
@@ -469,6 +472,16 @@ class certWizard(SessionWizardView):
         response.write(certif.pkcs12(data['password']))
         return response
 
+class InitWizard(SessionWizardView):
+    form_list = [CAForm]
+    template_name = 'wizard.html'
+
+    def done(self, form_list, **kwargs):
+        data = [form.cleaned_data for form in form_list]
+        serializer = CaSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+        return HttpResponseRedirect('/pki/ca/')
 
 class JSONResponse(HttpResponse):
     """

@@ -5,6 +5,7 @@ from pki import views
 
 urlpatterns = patterns('',
     url(r'^/$',                               login_required(views.list_cert.as_view(),login_url='/logon/'), name='index'),
+    url(r'^/init_wizard/$',                   login_required(views.InitWizard.as_view(),login_url='/logon/'), name='init_wizard'),
     url(r'/profile/(?P<pk>\d+)/del/$',        login_required(views.delete_cert_profile.as_view(),login_url='/logon/'), name='profile_delete'),
     url(r'/profile/(?P<pk>\d+)/$',            login_required(views.update_cert_profile.as_view(),login_url='/logon/'), name='profile_update'),
     url(r'/profile/new/$',                    login_required(views.create_cert_profile.as_view(),login_url='/logon/'), name='profile_add'),

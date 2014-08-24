@@ -13,4 +13,8 @@ class CertSerializer(serializers.ModelSerializer):
         model = Cert
         fields = ('cn', 'mail', 'st', 'organisation', 'country', 'x509', 'profile')
 
+class CaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CA
 

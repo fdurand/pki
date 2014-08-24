@@ -1,7 +1,8 @@
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.forms import ModelForm
 from django import forms
 from pki.models import *
-from django.contrib.auth.models import User
 
 class CertForm1(forms.Form):
     cn = forms.CharField(max_length=100)
@@ -39,3 +40,8 @@ class UserCreateForm(UserCreationForm):
         if commit:
             user.save()
             return user
+
+class CAForm(ModelForm):
+    class Meta:
+        model = CA
+        fields = ['cn','mail','organisation','ou','country','state','locality','key_type','key_size','digest','key_usage','extended_key_usage','days']
