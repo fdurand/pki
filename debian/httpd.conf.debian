@@ -1,73 +1,108 @@
-Listen 127.0.0.1:9191
-NameVirtualHost 127.0.0.1:9191
-  <IfModule !mod_ssl.c>
-    LoadModule      ssl_module              /usr/lib/apache2/modules/mod_ssl.so
-  </IfModule>
-  <IfModule !mod_wsgi.c>
-    LoadModule      wsgi_module             /usr/lib/apache2/modules/mod_wsgi.so
-  </IfModule>
-  <IfModule !mod_authz_host.c>
-    LoadModule      authz_host_module       /usr/lib/apache2/modules/mod_authz_host.so
-  </IfModule>
-  <IfModule !mod_log_config.c>
-    LoadModule      log_config_module       /usr/lib/apache2/modules/mod_log_config.so
-  </IfModule>
-  <IfModule !mod_mime.c>
-    LoadModule      mime_module             /usr/lib/apache2/modules/mod_mime.so
-  </IfModule>
-  <IfModule !mod_alias.c>
-    LoadModule      alias_module            /usr/lib/apache2/modules/mod_alias.so
-  </IfModule>
+<IfVersion >= 2.4>
 
-user pf
-group pf
+    LoadModule     mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so
 
-<IfModule mod_mime.c>
-TypesConfig /usr/local/pf/pki/conf/mime.types
-</IfModule>
+    <IfModule mpm_prefork_module>
+        StartServers          5
+        MinSpareServers       5
+        MaxSpareServers      10
+        MaxClients          150
+        MaxRequestsPerChild   0
+    </IfModule>
 
-PidFile /usr/local/pf/pki/inverse-pki.pid
+    <IfModule !mod_authz_core.c>
+        LoadModule      authz_core_module       /usr/lib/apache2/modules/mod_authz_core.so
+    </IfModule>
 
-ErrorLog /var/log/apache2/error.log
-<Virtualhost 127.0.0.1:9191>
+</IfVersion>
 
-   DocumentRoot /usr/local/pf/pki
+    <IfModule !mod_ssl.c>
+        LoadModule      ssl_module              /usr/lib/apache2/modules/mod_ssl.so
+    </IfModule>
+    <IfModule !mod_wsgi.c>
+        LoadModule      wsgi_module             /usr/lib/apache2/modules/mod_wsgi.so
+    </IfModule>
 
-   ServerName 127.0.0.1
+<IfVersion < 2.4>
+    <IfModule !mod_authz_host.c>
+        LoadModule      authz_host_module       /usr/lib/apache2/modules/mod_authz_host.so
+    </IfModule>
+</IfVersion>
+  
+    <IfModule !mod_log_config.c>
+        LoadModule      log_config_module       /usr/lib/apache2/modules/mod_log_config.so
+    </IfModule>
+    <IfModule !mod_mime.c>
+        LoadModule      mime_module             /usr/lib/apache2/modules/mod_mime.so
+    </IfModule>
+    <IfModule !mod_alias.c>
+        LoadModule      alias_module            /usr/lib/apache2/modules/mod_alias.so
+    </IfModule>
 
-   ErrorLog /var/log/apache2/inverse-pki.err
+    user pf
+    group pf
 
-   SSLEngine                    On
-   SSLCACertificateFile         /usr/local/pf/pki/conf/server.crt
-   SSLCertificateKeyFile        /usr/local/pf/pki/conf/server.key
-   SSLCertificateFile           /usr/local/pf/pki/conf/server.crt
+    Listen 127.0.0.1:9191
+    NameVirtualHost 127.0.0.1:9191
 
-   SSLVerifyClient              none
-   SSLVerifyDepth               2
+    ServerAdmin root@localhost
 
-   SSLOptions +StdEnvVars
+    <IfModule mod_mime.c>
+        TypesConfig /usr/local/pf/pki/conf/mime.types
+    </IfModule>
 
-   Alias /static/ /usr/local/pf/pki/pki/static/
+    PidFile /usr/local/pf/pki/inverse-pki.pid
 
-   <Directory /usr/local/pf/pki/pki/static>
-     Order deny,allow
-     Allow from all
-   </Directory>
+    ErrorLog /var/log/apache2/error.log
 
-   <Directory "/usr/local/pf/pki/">
-     AllowOverride All
-     Order deny,allow
-     Allow from all
-   </Directory>
+    <Virtualhost 127.0.0.1:9191>
+
+        DocumentRoot /usr/local/pf/pki
+
+        ServerName 127.0.0.1
+
+        ErrorLog /var/log/apache2/inverse-pki.err
+
+        SSLEngine                    On
+        SSLCACertificateFile         /usr/local/pf/pki/conf/server.crt
+        SSLCertificateKeyFile        /usr/local/pf/pki/conf/server.key
+        SSLCertificateFile           /usr/local/pf/pki/conf/server.crt
+
+        SSLVerifyClient              none
+        SSLVerifyDepth               2
+
+        SSLOptions +StdEnvVars
+
+        Alias /static/ /usr/local/pf/pki/pki/static/
+
+        <Directory /usr/local/pf/pki/pki/static>
+            <IfVersion < 2.4>
+                Order deny,allow
+                Allow from all
+            </IfVersion>
+            <IfVersion >= 2.4>
+                Require all granted
+            </IfVersion>
+        </Directory>
+
+        <Directory "/usr/local/pf/pki/">
+            <IfVersion < 2.4>
+                AllowOverride All
+                Order deny,allow
+                Allow from all
+            </IfVersion>
+            <IfVersion >= 2.4>
+                Require all granted
+            </IfVersion>
+        </Directory>
 
 
-   ServerAdmin admin@localhost
-   ErrorLog "/usr/local/pf/pki/logs/inverse_pki.error.log"
-   CustomLog "/usr/local/pf/pki/logs/inverse_pki.access.log" common
-   # mod_wsgi configuration is here
-   # we are running as user/group 'deamon', if you don't have those you need to change or create.
-   WSGIDaemonProcess inverse-pki user=pf group=pf processes=2 threads=25
-   WSGIScriptAlias / /usr/local/pf/pki/conf/inverse-pki.wsgi
+        ServerAdmin admin@localhost
+        ErrorLog "/usr/local/pf/pki/logs/inverse_pki.error.log"
+        CustomLog "/usr/local/pf/pki/logs/inverse_pki.access.log" common
+        # mod_wsgi configuration is here
+        # we are running as user/group 'deamon', if you don't have those you need to change or create.
+        WSGIDaemonProcess inverse-pki user=pf group=pf processes=2 threads=25
+        WSGIScriptAlias / /usr/local/pf/pki/conf/inverse-pki.wsgi
 
-</Virtualhost>
-
+    </Virtualhost>
