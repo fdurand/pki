@@ -3,7 +3,7 @@ VERSION	= 1.00
 PREFIX	= /usr/local/pf/pki
 UID	= -o nobody
 GID	= -g nogroup
-DIRS	= bootstrap3 inverse pki rest_framework conf logs
+DIRS	= bootstrap3 inverse pki rest_framework conf
 INSTALL	= /usr/bin/install -c -D -m0644
 TAR	= $(NAME)-$(VERSION).tar
 GZ	= $(TAR).gz
@@ -20,6 +20,7 @@ install:
 		done \
 	done
 	install -m0744 manage.py $(DESTDIR)$(PREFIX)/manage.py; \
+	install -d -m2770 $(DESTDIR)$(PREFIX)/logs; \
 	install -m0600 debian/httpd.conf.debian $(DESTDIR)$(PREFIX)/conf/httpd.conf
 	
 clean:
