@@ -452,8 +452,10 @@ class certWizard(SessionWizardView):
         if not 'profile' in data:
             restdefault = rest.objects.get(name='default')
             data['profile'] = restdefault.profile
-        serializer = CertSerializer(data)
-        serializer.save()
+        serializer = CertSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+        # Requests object to send to the REST API
         #new_data = JSONRenderer().render(serializer.data)
         #headers = {'content-type': 'application/json'}
         #r = requests.post(restdefault.url, data=new_data, headers=headers)
@@ -462,7 +464,6 @@ class certWizard(SessionWizardView):
         certif = Cert.objects.get(cn=data['cn'])
         certif.sign()
         certif.save()
-        #certif.send(data['password'])
         response = HttpResponse(mimetype='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename=' + string.replace(certif.cn, ' ', '_') + '.p12'
         response.write(certif.pkcs12(data['password']))
