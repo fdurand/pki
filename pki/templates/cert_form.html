@@ -30,13 +30,14 @@
 {% endblock %}
 
 {% block action %}
-<p>
-<fieldset id='fieldset'><legend><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</legend>
-<ul>
-  <li><a href="/pki/cert/{{ object.id }}/revoke/">{% trans "Revoke Certificate" %}</a></li>
-  <li><a href="/pki/cert/{{ object.id }}/download/">{% trans "Download Certificate" %}</a></li>
-  <li><a href="/pki/cert/{{ object.id }}/send/">{% trans "Send Certificate" %}</a></li>
-
-</ul>
-</fieldset>
+<h1 class="page-header"><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</h1>
+<div class="table-responsive">
+<table class="table table-striped">
+  <div class="list-group">
+    <a href="/pki/cert/{{ object.id }}/revoke/"  class="list-group-item active">{% trans "Revoke Certificate" %}</a>
+    <a href="/pki/cert/{{ object.id }}/download/"  class="list-group-item">{% trans "Download Certificate" %}</a>
+    <a href="/pki/cert/{{ object.id }}/send/"  class="list-group-item">{% trans "Send Certificate" %}</a>
+  </div>
+</table>
+</div>
 {% endblock %}

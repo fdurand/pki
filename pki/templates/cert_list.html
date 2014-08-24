@@ -57,10 +57,12 @@
 
 
 {% block action %}
-<p>
-<fieldset id='fieldset'><legend><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</legend>
-<ul>
-		<li><a href="/pki/cert/new/">{% trans "Add Certificate" %}</a></li>
-</ul>
-</fieldset>
+<h1 class="page-header"><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</h1>
+<div class="table-responsive">
+<table class="table table-striped">
+  <div class="list-group">
+    <a href="/pki/cert/new/"  class="list-group-item active">{% trans "Add Certificate" %}</a>
+  </div>
+</table>
+</div>
 {% endblock %}

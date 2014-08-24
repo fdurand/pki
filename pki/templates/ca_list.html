@@ -41,12 +41,13 @@
       </table>
     </div>
 {% endblock %}
-
 {% block action %}
-<p>
-<fieldset id='fieldset'><legend><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</legend>
-<ul>
-		<li><a href="/pki/ca/new/">{% trans "Add Certificate Authority" %}</a></li>
-</ul>
-</fieldset>
+<h1 class="page-header"><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</h1>
+<div class="table-responsive">
+<table class="table table-striped">
+  <div class="list-group">
+    <a href="/pki/ca/new/"  class="list-group-item active">{% trans "Add Certificate Authority" %}</a>
+  </div>
+</table>
+</div>
 {% endblock %}

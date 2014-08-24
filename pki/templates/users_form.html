@@ -25,10 +25,12 @@
 {% endblock %}
 
 {% block action %}
-<p>
-<fieldset id='fieldset'><legend><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</legend>
-<ul>
-  <li><a href="/user/password/">{% trans "Change User Password" %}</a></li>
-</ul>
-</fieldset>
+<h1 class="page-header"><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</h1>
+<div class="table-responsive">
+<table class="table table-striped">
+  <div class="list-group">
+    <a href="/user/password/"  class="list-group-item active">{% trans "Change User Password" %}</a>
+  </div>
+</table>
+</div>
 {% endblock %}
