@@ -607,7 +607,6 @@ class create_ldap(AjaxableResponseMixin, CreateView):
         form.instance.created_by = self.request.user
         return super(create_ldap, self).form_valid(form)
 
-
 class update_ldap(UpdateView):
     template_name = 'ldap_form.html'
     model = LDAP
@@ -626,4 +625,58 @@ class list_ldap(generic.ListView):
     def get_queryset(self):
         """Return the LDAP list."""
         return LDAP.objects.all()
+
+class create_attribut(AjaxableResponseMixin, CreateView):
+    template_name = 'attribut_form.html'
+    model = Attrib
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super(create_attribut, self).form_valid(form)
+
+class update_attribut(UpdateView):
+    template_name = 'ldap_form.html'
+    model = Attrib
+
+
+class delete_attribut(DeleteView):
+    template_name = 'attribut_confirm_delete.html'
+    model = Attrib
+    success_url = '/pki/ldap/attribut/'
+
+
+class list_attribut(generic.ListView):
+    template_name = 'attribut_list.html'
+    context_object_name = 'attribut_list'
+
+    def get_queryset(self):
+        """Return the Attrib list."""
+        return Attrib.objects.all()
+
+class create_schema(AjaxableResponseMixin, CreateView):
+    template_name = 'schema_form.html'
+    model = SCHEMA
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super(create_schema, self).form_valid(form)
+
+class update_schema(UpdateView):
+    template_name = 'schame_form.html'
+    model = ACHEMA
+
+
+class delete_schema(DeleteView):
+    template_name = 'schema_confirm_delete.html'
+    model = SCHEMA
+    success_url = '/pki/ldap/schema/'
+
+
+class list_schema(generic.ListView):
+    template_name = 'schema_list.html'
+    context_object_name = 'schema_list'
+
+    def get_queryset(self):
+        """Return the SCHEMA list."""
+        return SCHEMA.objects.all()
 
