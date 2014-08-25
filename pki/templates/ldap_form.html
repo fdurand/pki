@@ -28,3 +28,17 @@
 </form>
 
 {% endblock %}
+
+{% block action %}
+{% block action %}
+  {% if object.id %}
+<h1 class="page-header"><img src='{{ STATIC_URL }}img/goto.png'>{% trans "Action" %}</h1>
+<div class="table-responsive">
+<table class="table table-striped">
+  <div class="list-group">
+    <a href="/pki/ldap/{{ object.id }}/users/"  class="list-group-item">{% trans "Users List" %}</a>
+  </div>
+</table>
+</div>
+{% endif %}
+{% endblock %}

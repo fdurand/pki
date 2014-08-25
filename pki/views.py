@@ -671,7 +671,7 @@ class create_schema(AjaxableResponseMixin, CreateView):
         return super(create_schema, self).form_valid(form)
 
 class update_schema(UpdateView):
-    template_name = 'schame_form.html'
+    template_name = 'schema_form.html'
     model = SCHEMA
     success_url = '/pki/ldap/schema/'
 
@@ -689,3 +689,11 @@ class list_schema(generic.ListView):
         """Return the SCHEMA list."""
         return SCHEMA.objects.all()
 
+def ldap_users_list(request,pk):
+    ldap_users = LDAP.objects.get(id=pk)
+    users = ldap_users.all_users()
+    return render_to_response('ldap_users_list.html',{'users': users, 'pk': pk},context_instance=RequestContext(request))
+
+def ldap_groups_list(request,pk):
+    ldap = LDAP.objects.get(id=pk)
+    return ldap.all_groups()

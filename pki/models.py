@@ -15,6 +15,7 @@ from email.Utils import COMMASPACE, formatdate
 
 from OpenSSL import crypto
 import datetime
+import operator
 import smtplib
 import hashlib
 import string
@@ -147,11 +148,11 @@ class LDAP(models.Model):
     user_ou = models.CharField(max_length=100)
     user_attr = models.CharField(max_length=20)
     user_scope = models.IntegerField(choices=LDAP_SCOPE)
-    user_filter = models.CharField(max_length=100)
+    user_filter = models.CharField(max_length=100, default="(|(objectclass=posixAccount)(objectclass=inetOrgPerson)(objectclass=person))")
     group_ou = models.CharField(max_length=100)
     group_attr = models.CharField(max_length=50)
     group_scope = models.IntegerField(choices=LDAP_SCOPE)
-    group_filter = models.CharField(max_length=100)
+    group_filter = models.CharField(max_length=100, default="(|(objectclass=posixGroup)(objectclass=group)(objectclass=groupofuniquenames))")
     group_member = models.CharField(max_length=20)
     are_members_dn = models.BooleanField()
 
@@ -215,6 +216,10 @@ class LDAP(models.Model):
             l.modify_s(dn.encode('utf-8'), [(mod_type, "member", user_dn.encode('utf-8'))])
         except ldap.LDAPError, error_message:
             print error_message
+
+    def all_users(self):
+         ret = self.search(self.base_dn, self.user_scope, self.user_filter, [ str(self.user_attr) ])
+         return ret
 
     def delete_user(self, uid):
         try:
