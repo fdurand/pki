@@ -43,7 +43,7 @@
     group pf
 
     Listen 127.0.0.1:9191
-    NameVirtualHost 127.0.0.1:9191
+    ServerName 127.0.0.1
 
     ServerAdmin root@localhost
 
