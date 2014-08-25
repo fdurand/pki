@@ -104,7 +104,7 @@ class Attrib(models.Model):
     type = models.CharField(max_length=10,choices=ATTRIBUT_TYPE, default="user")
 
     def __unicode__(self):
-        return self.attribut
+        return self.attribut + " (" + self.type + ")"
 
     def get_absolute_url(self):
         return reverse('attribut_update', kwargs={'pk': self.pk})
@@ -131,8 +131,8 @@ class LDAP(models.Model):
         (ldap.SCOPE_BASE,'base (the suffix entry only)'),
         )
     LDAP_VERSIONS = (
-        ('2','LDAP v2'),
-        ('3','LDAP v3'),
+        (2,'LDAP v2'),
+        (3,'LDAP v3'),
         )
     name = models.CharField(max_length=20)
     host = models.CharField(max_length=20)

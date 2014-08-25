@@ -112,6 +112,7 @@ class list_cert_page(generic.ListView):
 class create_cert_profile(AjaxableResponseMixin, CreateView):
     template_name = 'certprofile_form.html'
     model = CertProfile
+    success_url = '/pki/profile/'
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -121,7 +122,7 @@ class create_cert_profile(AjaxableResponseMixin, CreateView):
 class update_cert_profile(UpdateView):
     template_name = 'certprofile_form.html'
     model = CertProfile
-
+    success_url = '/pki/profile/'
 
 class delete_cert_profile(DeleteView):
     template_name = 'certprofile_confirm_delete.html'
@@ -142,6 +143,7 @@ class create_cert(AjaxableResponseMixin, CreateView):
     template_name = 'cert_form.html'
     model = Cert
     fields = ['cn','mail','st','organisation','country','profile']
+    success_url = '/pki/cert/'
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -152,7 +154,7 @@ class update_cert(UpdateView):
     template_name = 'cert_form.html'
     model = Cert
     fields = ['cn','mail','st','organisation','country','profile','revoked']
-
+    success_url = '/pki/cert/'
 
 class delete_cert(DeleteView):
     template_name = 'cert_confirm_delete.html'
@@ -173,6 +175,7 @@ class create_ca(AjaxableResponseMixin, CreateView):
     template_name = 'ca_form.html'
     model = CA
     fields = ['cn','mail','organisation','ou','country','state','locality','key_type','key_size','digest','key_usage','extended_key_usage','days']
+    success_url = '/pki/ca/'
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -182,7 +185,7 @@ class create_ca(AjaxableResponseMixin, CreateView):
 class update_ca(UpdateView):
     template_name = 'ca_form.html'
     model = CA
-
+    success_url = '/pki/ca/'
 
 class delete_ca(DeleteView):
     template_name = 'ca_confirm_delete.html'
