@@ -94,9 +94,14 @@ class CA(models.Model):
         return crypto.dump_pkcs12(p12,passphrase, "")
 
 class Attrib(models.Model):
+    ATTRIBUT_TYPE = (
+        ('user','User Schema'),
+        ('group','Group Schema'),
+        )
     attribut = models.CharField(max_length=20)
     value = models.CharField(max_length=20)
     description = models.CharField(max_length=40)
+    type = models.CharField(max_length=10,choices=ATTRIBUT_TYPE, default="user")
 
     def __unicode__(self):
         return self.attribut
@@ -105,12 +110,7 @@ class Attrib(models.Model):
         return reverse('attribut_update', kwargs={'pk': self.pk})
 
 class SCHEMA(models.Model):
-    SCHEME_TYPE = (
-        ('user','User Schema'),
-        ('group','Group Schema'),
-        )
     name = models.CharField(max_length=20,unique=1)
-    type = models.CharField(max_length=10,choices=SCHEME_TYPE, default="user")
     attribut = models.ManyToManyField(Attrib)
 
     def __unicode__(self):

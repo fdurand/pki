@@ -576,6 +576,7 @@ class cert_list(APIView):
 class create_rest(AjaxableResponseMixin, CreateView):
     template_name = 'rest_form.html'
     model = rest
+    success_url = '/pki/rest/'
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -585,7 +586,7 @@ class create_rest(AjaxableResponseMixin, CreateView):
 class update_rest(UpdateView):
     template_name = 'rest_form.html'
     model = rest
-
+    success_url = '/pki/rest/'
 
 class delete_rest(DeleteView):
     template_name = 'rest_confirm_delete.html'
@@ -604,6 +605,7 @@ class list_rest(generic.ListView):
 class create_ldap(AjaxableResponseMixin, CreateView):
     template_name = 'ldap_form.html'
     model = LDAP
+    success_url = '/pki/ldap/'
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -612,7 +614,7 @@ class create_ldap(AjaxableResponseMixin, CreateView):
 class update_ldap(UpdateView):
     template_name = 'ldap_form.html'
     model = LDAP
-
+    success_url = '/pki/ldap/'
 
 class delete_ldap(DeleteView):
     template_name = 'ldap_confirm_delete.html'
@@ -631,15 +633,16 @@ class list_ldap(generic.ListView):
 class create_attribut(AjaxableResponseMixin, CreateView):
     template_name = 'attribut_form.html'
     model = Attrib
+    success_url = '/pki/ldap/attribut/'
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super(create_attribut, self).form_valid(form)
 
 class update_attribut(UpdateView):
-    template_name = 'ldap_form.html'
+    template_name = 'attribut_form.html'
     model = Attrib
-
+    success_url = '/pki/ldap/attribut/'
 
 class delete_attribut(DeleteView):
     template_name = 'attribut_confirm_delete.html'
@@ -658,6 +661,7 @@ class list_attribut(generic.ListView):
 class create_schema(AjaxableResponseMixin, CreateView):
     template_name = 'schema_form.html'
     model = SCHEMA
+    success_url = '/pki/ldap/schema/'
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -666,7 +670,7 @@ class create_schema(AjaxableResponseMixin, CreateView):
 class update_schema(UpdateView):
     template_name = 'schame_form.html'
     model = SCHEMA
-
+    success_url = '/pki/ldap/schema/'
 
 class delete_schema(DeleteView):
     template_name = 'schema_confirm_delete.html'
