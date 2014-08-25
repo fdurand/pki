@@ -14,12 +14,32 @@
 
 {% block menu %}
 <ul class="nav navbar-nav navbar-right">
-  <li><a href='/users/'>Users</a></li>
   <li><a href='/pki/ca/'>Certificate Authority</a></li>
-  <li><a href='/pki/profile/'>Profiles</a></li>
-  <li><a href='/pki/ldap/'>LDAP</a></li>
-  <li><a href='/pki/cert/'>Certificates</a></li>
-  <li><a href='/pki/rest/'>Rest API</a></li>
+  <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Certificate <span class="caret"></span></a>
+    <ul class="dropdown-menu" role="menu">
+      <li class="divider"></li>
+      <li class="dropdown-header">Certificate Management</li>
+        <li><a href='/pki/profile/'>Profiles</a></li>
+        <li><a href='/pki/cert/'>Certificates</a></li>
+    </ul>
+  </li>
+  <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Configuration <span class="caret"></span></a>
+    <ul class="dropdown-menu" role="menu">
+      <li class="divider"></li>
+      <li class="dropdown-header">Users Management</li>
+        <li><a href='/users/'>Users</a></li>
+      <li class="divider"></li>
+      <li class="dropdown-header">LDAP Configuration</li>
+        <li><a href='/pki/ldap/'>LDAP Host</a></li>
+        <li><a href='/pki/ldap/schema'>LDAP Schema</a></li>
+        <li><a href='/pki/ldap/attribut'>LDAP Attribut</a></li>
+      <li class="divider"></li>
+      <li class="dropdown-header">Rest Configuration</li>
+        <li><a href='/pki/rest/'>Rest API</a></li>
+    </ul>
+  </li>
   <li>
     <form name="logout" action="/logout/" method="post">
       {% csrf_token %}

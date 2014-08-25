@@ -55,7 +55,9 @@ def logon(request):
             if user.is_active and user.is_staff:
                 login(request, user)
                 try:
-                    ca = CA.objects.all()
+                    ca = CA.objects.get()
+                    for AC in ca:
+                        test = AC.id
                     return HttpResponseRedirect("/pki/")
                 except CA.DoesNotExist:
                     return HttpResponseRedirect("/pki/init_wizard/")
