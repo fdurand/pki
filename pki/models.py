@@ -101,6 +101,9 @@ class Attrib(models.Model):
     def __unicode__(self):
         return self.attribut
 
+    def get_absolute_url(self):
+        return reverse('attribut_update', kwargs={'pk': self.pk})
+
 class SCHEMA(models.Model):
     SCHEME_TYPE = (
         ('user','User Schema'),
@@ -112,6 +115,9 @@ class SCHEMA(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('schema_update', kwargs={'pk': self.pk})
 
 class LDAP(models.Model):
     LDAP_ENC_SCHEMES = (

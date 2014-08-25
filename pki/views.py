@@ -663,7 +663,7 @@ class create_schema(AjaxableResponseMixin, CreateView):
 
 class update_schema(UpdateView):
     template_name = 'schame_form.html'
-    model = ACHEMA
+    model = SCHEMA
 
 
 class delete_schema(DeleteView):
