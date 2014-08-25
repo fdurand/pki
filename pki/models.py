@@ -93,6 +93,14 @@ class CA(models.Model):
         p12.set_certificate(cert)
         return crypto.dump_pkcs12(p12,passphrase, "")
 
+class Attrib(models.Model):
+    attribut = models.CharField(max_length=20)
+    value = models.CharField(max_length=20)
+    description = models.CharField(max_length=40)
+
+    def __unicode__(self):
+        return self.attribut
+
 class SCHEMA(models.Model):
     SCHEME_TYPE = (
         ('user','User Schema'),
@@ -104,15 +112,6 @@ class SCHEMA(models.Model):
 
     def __unicode__(self):
         return self.name
-
-class Attrib(models.Model):
-    attribut = models.CharField(max_length=20)
-    value = models.CharField(max_length=20)
-    description = models.CharField(max_length=40)
-
-    def __unicode__(self):
-        return self.attribut
-
 
 class LDAP(models.Model):
     LDAP_ENC_SCHEMES = (
