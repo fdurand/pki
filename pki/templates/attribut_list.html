@@ -17,7 +17,7 @@
 {% for object in object_list %}
         <tbody>
 	  <tr>
-            <td>{{ object.attribut }}</td>
+            <td>{{ object.attribut }} {% if object.value %}({{ object.value }}){% endif %} </td>
             <td>
               <a href="/pki/ldap/attribut/{{ object.id }}/"><img src="{{ STATIC_URL }}img/edit.png">
             </td>

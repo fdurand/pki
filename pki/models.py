@@ -100,12 +100,12 @@ class Attrib(models.Model):
         ('group','Group Schema'),
         )
     attribut = models.CharField(max_length=20)
-    value = models.CharField(max_length=20)
-    description = models.CharField(max_length=40)
+    value = models.CharField(max_length=20, blank=1, null=1)
+    description = models.CharField(max_length=40, blank=1, null=1)
     type = models.CharField(max_length=10,choices=ATTRIBUT_TYPE, default="user")
 
     def __unicode__(self):
-        return self.attribut + " (" + self.type + ")"
+        return self.attribut + " (" + self.value + ")"
 
     def get_absolute_url(self):
         return reverse('attribut_update', kwargs={'pk': self.pk})
