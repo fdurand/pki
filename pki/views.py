@@ -547,6 +547,16 @@ class cert_detail(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
+    def post(self, request, pk):
+        donnee = request.data
+        if not 'profile' in donnee:
+            restdefault = rest.objects.get(name='default')
+            donnee['profile'] = restdefault.profile
+        serializer = CertSerializer(data=donnee)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,  status=status.HTTP_201_CREATED)
+
 
 class cert_list(APIView):
     permission_classes = (permissions.DjangoModelPermissions,)

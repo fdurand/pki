@@ -7,7 +7,7 @@ class CertProfileSerializer(serializers.ModelSerializer):
         model = CertProfile
 
 class CertSerializer(serializers.ModelSerializer):
-    profile = serializers.SlugRelatedField(slug_field = 'name')
+    profile = serializers.SlugRelatedField(queryset=CertProfile.objects.all(), slug_field = 'name')
 
     class Meta:
         model = Cert
