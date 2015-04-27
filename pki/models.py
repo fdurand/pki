@@ -316,7 +316,7 @@ class Cert(models.Model):
         cakey = crypto.load_privatekey(crypto.FILETYPE_PEM, self.profile.ca.ca_key)
         x509.set_issuer(cacert.get_subject())
         x509.set_serial_number(self.id)
-        x509.gmtime_adj_notBefore(0)
+        x509.gmtime_adj_notBefore(-3600)
         self.valid_until = self.date + datetime.timedelta(days=self.profile.validity)
         delta = self.valid_until.date() - self.date.date();
         x509.gmtime_adj_notAfter(delta.days * 60 * 60 * 24)
