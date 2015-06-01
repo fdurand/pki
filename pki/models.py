@@ -34,6 +34,7 @@ class CA(models.Model):
     key_type = models.IntegerField(choices=((crypto.TYPE_RSA, 'RSA'), (crypto.TYPE_DSA, 'DSA')))
     key_size = models.IntegerField(choices=((512, '512'), (1024, '1024'), (2048, '2048')))
     digest = models.CharField(max_length=10, choices=(('md5', 'md5'),('sha1', 'sha1')))
+    basic_constraints = models.CharField(max_length=50)
     key_usage = models.CharField(max_length=50,blank=1)
     extended_key_usage = models.CharField(max_length=50,blank=1)
     days = models.IntegerField(max_length=4)
@@ -62,6 +63,8 @@ class CA(models.Model):
             cert.add_extensions([crypto.X509Extension("keyUsage", True,self.key_usage)])
         if self.extended_key_usage:
             cert.add_extensions([crypto.X509Extension("extendedKeyUsage", True,self.extended_key_usage)])
+        if self.basic_constraints:
+            cert.add_extensions([crypto.X509Extension("basicConstraints", True, "CA:TRUE")])
         cert.sign(k, self.digest)
         self.ca_key = crypto.dump_privatekey(crypto.FILETYPE_PEM, k)
         self.ca_cert = crypto.dump_certificate(crypto.FILETYPE_PEM, cert)
@@ -352,6 +355,13 @@ class Cert(models.Model):
         p12.set_privatekey(key)
         p12.set_certificate(cert)
         return p12.export(passphrase)
+    def pemf(self, passphrase):
+        pem = crypto.X509()
+        blump = self.pkey
+        key = crypto.load_privatekey(crypto.FILETYPE_PEM, self.pkey)
+        cert = crypto.load_certificate(crypto.FILETYPE_PEM, self.x509 + "\n" + self.profile.ca.ca_cert)
+        pem.set_privatekey(key)
+        pem.set_certificate(cert)
     def send_password(self, passphrase):
         msg = MIMEMultipart()
         msg['From'] = self.profile.p12_mail_from

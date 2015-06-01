@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.conf.urls import patterns, include, url
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authtoken import views as restviews
 
 from pki import views
 
@@ -45,4 +47,6 @@ urlpatterns = patterns('',
     url(r'/ldap/schema/(?P<pk>\d+)/$',        login_required(views.update_schema.as_view(),login_url='/logon/'), name='schema_update'),
     url(r'/ldap/schema/new/$',                login_required(views.create_schema.as_view(),login_url='/logon/'), name='schema_add'),
     url(r'/ldap/schema/$',                    login_required(views.list_schema.as_view(),login_url='/logon/'), name='schema_list'),
+    url(r'/api-token-auth/$',                 restviews.ObtainAuthToken.as_view()),
+    url(r'/cert/eaptls/certificate/$',        views.cert_get.as_view()),
 )

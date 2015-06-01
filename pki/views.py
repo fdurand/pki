@@ -29,7 +29,6 @@ from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework import status
 
-
 from pki.serializers import *
 from pki.models import *
 from pki.forms import *
@@ -42,7 +41,9 @@ import random
 import array
 import json
 import time
+import logging
 
+logger = logging.getLogger(__name__)
 
 def logon(request):
     if request.user.is_authenticated():
@@ -55,14 +56,13 @@ def logon(request):
             if user.is_active and user.is_staff:
                 login(request, user)
                 try:
-                    ca = CA.objects.get()
+                    ca = CA.objects.all()
                     for AC in ca:
                         test = AC.id
                     return HttpResponseRedirect("/pki/")
                 except CA.DoesNotExist:
                     return HttpResponseRedirect("/pki/init_wizard/")
     return render_to_response('logon.html',context_instance=RequestContext(request))
-
 
 def disconnect(request):  
     logout(request)
@@ -174,7 +174,7 @@ class list_cert(generic.ListView):
 class create_ca(AjaxableResponseMixin, CreateView):
     template_name = 'ca_form.html'
     model = CA
-    fields = ['cn','mail','organisation','ou','country','state','locality','key_type','key_size','digest','key_usage','extended_key_usage','days']
+    fields = ['cn','mail','organisation','ou','country','state','locality','key_type','key_size','digest','basic_constraints','key_usage','extended_key_usage','days']
     success_url = '/pki/ca/'
 
     def form_valid(self, form):
@@ -297,7 +297,6 @@ def download_cert(request,pk):
         cert.send_password(password)
     response.write(cert.pkcs12(password))
     return response
-
 
 def send_cert(request,pk):
     cert = Cert.objects.get(id=pk)
@@ -464,14 +463,9 @@ class certWizard(SessionWizardView):
         serializer = CertSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-        #new_data = JSONRenderer().render(serializer.data)
-        #headers = {'content-type': 'application/json'}
-        #r = requests.post(restdefault.url, data=new_data, headers=headers)
-        #code = r.status_code
-        #if code is '201':
-        certif = Cert.objects.get(cn=data['cn'])
-        certif.sign()
-        certif.save()
+            certif = Cert.objects.get(cn=data['cn'])
+            certif.sign()
+            certif.save()
         response = HttpResponse(mimetype='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename=' + string.replace(certif.cn, ' ', '_') + '.p12'
         response.write(certif.pkcs12(data['password']))
@@ -486,7 +480,16 @@ class InitWizard(SessionWizardView):
         serializer = CaSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-        return HttpResponseRedirect('/pki/ca/')
+        new_data = JSONRenderer().render(serializer.data)
+        headers = {'content-type': 'application/json'}
+        r = requests.post(restdefault.url, data=new_data, headers=headers)
+        certif = Cert.objects.get(cn=data['cn'])
+        certif.sign()
+        certif.save()
+        response = HttpResponse(mimetype='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename=' + string.replace(certif.cn, ' ', '_') + '.p12'
+        response.write(certif.pkcs12(data['password']))
+        return response
 
 class JSONResponse(HttpResponse):
     """
@@ -508,7 +511,6 @@ def valid_rest_user(request,cert):
     except rest.DoesNotExist:
         return 0
 
-
 class cert_detail(APIView):
     """
     Retrieve, update or delete a code snippet.
@@ -522,14 +524,13 @@ class cert_detail(APIView):
         except Cert.DoesNotExist:
             raise Http404
 
-
     def get(self, request, pk, format=None):
         cert = self.get_object(pk)
         if valid_rest_user(request,cert):
             serializer = CertSerializer(cert)
-            return Response(serializer.data)
+            return Response(serializer.data , status=None, template_name=None, headers=None, content_type=None)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
-
+ 
     def put(self, request, pk, format=None):
         cert = self.get_object(pk)
         if valid_rest_user(request,cert):
@@ -558,6 +559,39 @@ class cert_detail(APIView):
             return Response(serializer.data,  status=status.HTTP_201_CREATED)
 
 
+class cert_get(APIView):
+    permissions_classes = (permissions.DjangoModelPermissions,)
+    """
+    Create and make available for download.
+    """
+    models = Cert
+
+    def post(self, request, **kwargs):
+        donnee = request.data
+        try:
+            o = Cert.objects.get(cn=donnee['cn'])
+        except Cert.DoesNotExist:
+            if not 'profile' in donnee:
+                restdefault = rest.objects.get(name='default')
+                profile = restdefault.profile
+                donnee['profile'] = profile.name
+            serializer = CertSerializer(data=donnee)
+            if serializer.is_valid():
+                certz = serializer.save()
+                o = Cert.objects.get(cn=t)
+                o.sign()
+                o.save()
+                fichier = o.pkcs12(donnee['pwd'])
+                response = HttpResponse(fichier, content_type='application/x-pkcs12')
+                response['Content-Disposition'] = "attachment; filename={}.p12".format(t)
+                return response
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Cert exist so return the cert (unsecure).
+        fichier = o.pkcs12(pwd)
+        response = HttpResponse(fichier, content_type='application/x-pkcs12')
+        response['Content-Disposition'] = "attachment; filename={}.p12".format(t)
+        return response
+
 class cert_list(APIView):
     permission_classes = (permissions.DjangoModelPermissions,)
     """
@@ -574,10 +608,10 @@ class cert_list(APIView):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    def post(self, request, pk, format=None):
+    def post(self, request, pk, format=None, **kwargs):
         rest_entry = rest.objects.get(name=pk)
         if request.user in rest_entry.allowed_users.all():
-            serializer = CertSerializer(data=data)
+            serializer = CertSerializer(data=request.DATA)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
