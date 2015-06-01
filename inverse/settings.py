@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'bootstrap3',
+    'djangosecure',
     'pki',
 )
 
@@ -49,7 +50,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'djangosecure.middleware.SecurityMiddleware',
 )
+
+SECURE_SSL_REDIRECT = True
+SECURE_REDIRECT_EXEMPT = [r'^pki/ocsp/$']
 
 ROOT_URLCONF = 'inverse.urls'
 
