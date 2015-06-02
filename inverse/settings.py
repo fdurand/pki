@@ -50,9 +50,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'djangosecure.middleware.SecurityMiddleware',
+    'inverse.middleware.SecurityMiddleware',
 )
 
+SECURE_SSL_PORT = "9191"
 SECURE_SSL_REDIRECT = True
 SECURE_REDIRECT_EXEMPT = [r'^pki/ocsp/$']
 
