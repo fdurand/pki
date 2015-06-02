@@ -9,8 +9,28 @@ TAR	= $(NAME)-$(VERSION).tar
 GZ	= $(TAR).gz
 BZ2	= $(TAR).bz2
 
-all:
-		
+dist: clean $(GZ)
+
+$(TAR):
+	for j in `find . ! -type l ! -name '*~'  ! -name '#*' ! -name 'db' ! -path '*/.git/*' !  -path '*/.gitignore'`; do \
+		if [ -f $$j ]; then \
+			$(INSTALL) $$j $(NAME)-$(VERSION)/$$j; \
+		fi; \
+	done
+	tar cf $(TAR) $(NAME)-$(VERSION)
+	rm -rf $(NAME)-$(VERSION)
+
+$(GZ): $(TAR)
+	gzip -f $(TAR)
+
+bz2: clean $(BZ2)
+
+$(BZ2): $(TAR)
+	bzip2 $(TAR)
+
+clean:
+	rm -rf $(GZ) $(TAR) $(BZ2) $(NAME)-$(VERSION)
+
 install:
 	for i in '$(DIRS)'; do \
 		for j in `find $$i`; do \
