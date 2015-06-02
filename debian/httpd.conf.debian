@@ -42,8 +42,9 @@
     user pf
     group pf
 
-    Listen 127.0.0.1:9191
-    ServerName 127.0.0.1
+    Listen *:9191
+    Listen *:9292
+    ServerName pki
 
     ServerAdmin root@localhost
 
@@ -55,11 +56,11 @@
 
     ErrorLog /var/log/apache2/error.log
 
-    <Virtualhost 127.0.0.1:9191>
+    <Virtualhost *:9191>
 
         DocumentRoot /usr/local/pf/pki
 
-        ServerName 127.0.0.1
+        ServerName pki
 
         ErrorLog /var/log/apache2/inverse-pki.err
 
@@ -99,11 +100,63 @@
 
 
         ServerAdmin admin@localhost
+
+        LogLevel warn
+        LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+
         ErrorLog "/usr/local/pf/pki/logs/inverse_pki.error.log"
-        CustomLog "/usr/local/pf/pki/logs/inverse_pki.access.log" common
+        CustomLog "/usr/local/pf/pki/logs/inverse_pki.access.log" combined
+
         # mod_wsgi configuration is here
         # we are running as user/group 'deamon', if you don't have those you need to change or create.
         WSGIDaemonProcess inverse-pki user=pf group=pf processes=2 threads=25
         WSGIScriptAlias / /usr/local/pf/pki/conf/inverse-pki.wsgi
 
     </Virtualhost>
+    <Virtualhost *:9292>
+
+        DocumentRoot /usr/local/pf/pki
+
+        ServerName pki
+
+        ErrorLog /var/log/apache2/inverse-pki.err
+
+        Alias /static/ /usr/local/pf/pki/pki/static/
+        Alias /favicon.ico /usr/local/pf/pki/pki/static/img/key.ico
+
+        <Directory /usr/local/pf/pki/pki/static>
+            <IfVersion < 2.4>
+                Order deny,allow
+                Allow from all
+            </IfVersion>
+            <IfVersion >= 2.4>
+                Require all granted
+            </IfVersion>
+        </Directory>
+
+        <Directory "/usr/local/pf/pki/">
+            <IfVersion < 2.4>
+                AllowOverride All
+                Order deny,allow
+                Allow from all
+            </IfVersion>
+            <IfVersion >= 2.4>
+                Require all granted
+            </IfVersion>
+        </Directory>
+
+
+        ServerAdmin admin@localhost
+        LogLevel warn
+        LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+
+        ErrorLog "/usr/local/pf/pki/logs/inverse_pki.error.log"
+        CustomLog "/usr/local/pf/pki/logs/inverse_pki.access.log" combined
+
+        # mod_wsgi configuration is here
+        # we are running as user/group 'deamon', if you don't have those you need to change or create.
+        WSGIDaemonProcess ocsp user=pf group=pf processes=2 threads=25
+        WSGIScriptAlias / /usr/local/pf/pki/conf/inverse-pki.wsgi
+
+    </Virtualhost>
+
